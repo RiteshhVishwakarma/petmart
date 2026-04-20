@@ -1,0 +1,100 @@
+# 🚀 Quick Commands - Copy & Paste
+
+## GITHUB UPLOAD (First Time)
+
+# Step 1: Navigate to project
+cd D:\VibeCode\petshop\petMart
+
+# Step 2: Initialize git
+git init
+
+# Step 3: Add all files
+git add .
+
+# Step 4: First commit
+git commit -m "Initial commit: PetMart e-commerce mobile app"
+
+# Step 5: Set main branch
+git branch -M main
+
+# Step 6: Add remote (REPLACE YOUR_USERNAME!)
+git remote add origin https://github.com/YOUR_USERNAME/petmart.git
+
+# Step 7: Push to GitHub
+git push -u origin main
+
+---
+
+## FUTURE UPDATES
+
+# Check what changed
+git status
+
+# Add changes
+git add .
+
+# Commit with message
+git commit -m "Add: Feature description"
+
+# Push to GitHub
+git push
+
+---
+
+## BUILD APK (After GitHub Upload)
+
+# Option 1: EAS Build (Recommended)
+npm install -g eas-cli
+eas login
+eas build --platform android --profile preview
+
+# Option 2: Local Build
+npx expo prebuild
+cd android
+./gradlew assembleRelease
+
+# APK Location:
+# android/app/build/outputs/apk/release/app-release.apk
+
+---
+
+## TROUBLESHOOTING
+
+# If "remote origin already exists"
+git remote remove origin
+git remote add origin https://github.com/YOUR_USERNAME/petmart.git
+
+# If node_modules being added
+echo "node_modules/" >> .gitignore
+git rm -r --cached node_modules
+git add .
+git commit -m "Fix: Remove node_modules"
+
+# Check remote
+git remote -v
+
+# View commit history
+git log --oneline
+
+---
+
+## QUICK CHECKS
+
+# What will be uploaded?
+git status
+
+# Check .gitignore working
+git status | grep node_modules
+# Should show nothing
+
+# Check file count
+git ls-files | wc -l
+# Should be around 100-150 files
+
+---
+
+REMEMBER:
+1. Replace YOUR_USERNAME with your GitHub username
+2. Use Personal Access Token for password
+3. Or use GitHub Desktop app
+4. Build APK AFTER GitHub upload

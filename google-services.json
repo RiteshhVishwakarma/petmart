@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "963530337544",
+    "project_id": "petmart-6340a",
+    "storage_bucket": "petmart-6340a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:963530337544:android:84ec6340a7fc58d43e50bd",
+        "android_client_info": {
+          "package_name": "com.petmart.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_SfE4EtSJtKgFtHCIFsxDf-G1qM0QBFc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

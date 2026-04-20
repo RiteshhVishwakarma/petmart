@@ -1,0 +1,49 @@
+# Quick Git Commands for PetMart Upload
+
+## First Time Setup
+git init
+git add .
+git commit -m "Initial commit: PetMart e-commerce app"
+git branch -M main
+git remote add origin https://github.com/YOUR_USERNAME/petmart.git
+git push -u origin main
+
+## Future Updates
+git status
+git add .
+git commit -m "Add: Feature description"
+git push
+
+## Check What Will Be Uploaded
+git status
+git diff
+
+## Remove File from Git (if accidentally added)
+git rm --cached filename
+git commit -m "Remove: filename"
+git push
+
+## Undo Last Commit (before push)
+git reset --soft HEAD~1
+
+## View Commit History
+git log --oneline
+
+## Create New Branch
+git checkout -b feature-name
+
+## Switch Branch
+git checkout main
+
+## Merge Branch
+git checkout main
+git merge feature-name
+
+## Pull Latest Changes
+git pull origin main
+
+## Clone Repository (on another computer)
+git clone https://github.com/YOUR_USERNAME/petmart.git
+cd petmart
+npm install
+npm start

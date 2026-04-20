@@ -32,10 +32,39 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env
 
 # typescript
 *.tsbuildinfo
 
-# generated native folders
-/ios
-/android
+# generated native folders - KEEP THESE FOR NOW
+# /ios
+# /android
+
+# Development documentation (internal use only)
+*_GUIDE.md
+*_FIX.md
+*_SUMMARY.md
+*_UPDATE.md
+*_COMPLETE.md
+*_CHECKLIST.md
+*_SETUP.md
+*_CHANGES.md
+IMPROVEMENTS.md
+TESTING_GUIDE.md
+WHATS_NEW.md
+QUICK_START.md
+FIREBASE_*.md
+ANIMATIONS_GUIDE.md
+FINAL_*.md
+IMPLEMENTATION_*.md
+GRID_*.md
+KEYBOARD_*.md
+LOGO_*.md
+DELETE_*.md
+BEFORE_AFTER_*.md
+HOW_TO_*.md
+QUICK_REFERENCE.md
+
+# Keep only main README
+# README.md - keep this

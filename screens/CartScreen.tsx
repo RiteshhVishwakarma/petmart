@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, Animated, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCart } from '../context/CartContext';
@@ -20,6 +20,18 @@ export default function CartScreen({ navigation }: Props) {
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
   const handleCheckout = () => {
+    // Validate cart before checkout
+    if (cartItems.length === 0) {
+      Alert.alert('Empty Cart', 'Your cart is empty. Please add some items first!');
+      return;
+    }
+    
+    // Validate total price
+    if (totalPrice <= 0 || isNaN(totalPrice)) {
+      Alert.alert('Error', 'Cart total is invalid. Please try again or contact support.');
+      return;
+    }
+    
     if (!user) {
       // Not logged in - redirect to login with return path
       navigation?.navigate('Login', { returnTo: 'Address' });

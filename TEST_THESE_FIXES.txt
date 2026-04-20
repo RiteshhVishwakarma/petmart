@@ -1,0 +1,135 @@
+🧪 TEST KARO YE FIXES:
+
+═══════════════════════════════════════════════════════════════
+
+✅ FIX 1: PRODUCT CARD CLICK
+═══════════════════════════════════════════════════════════════
+
+1. App start karo:
+   npm start
+
+2. Home screen pe jao
+
+3. Kisi bhi product card pe click karo
+   ✅ Product detail screen open hona chahiye
+
+4. Product List screen pe jao
+
+5. Kisi bhi product pe click karo
+   ✅ Product detail screen open hona chahiye
+
+6. Wishlist button (heart icon) pe click karo
+   ✅ Sirf wishlist toggle hona chahiye
+   ✅ Product detail open NAHI hona chahiye
+
+7. Product card ke different areas pe click karo:
+   - Image pe
+   - Name pe
+   - Price pe
+   ✅ Sab jagah se product detail open hona chahiye
+
+═══════════════════════════════════════════════════════════════
+
+✅ FIX 2: PAYMENT AMOUNT
+═══════════════════════════════════════════════════════════════
+
+1. Cart khali karo (sab items remove karo)
+
+2. "Place Order" button pe click karo
+   ✅ Alert aana chahiye: "Your cart is empty"
+
+3. Kuch products add karo cart me
+
+4. Cart screen pe jao
+
+5. Total amount check karo
+   ✅ Correct amount dikhna chahiye (₹0 NAHI)
+
+6. "Place Order" button pe click karo
+
+7. Address screen open hoga
+
+8. "Order Summary" section me check karo
+   ✅ Correct total amount dikhna chahiye
+
+9. Address select/add karo
+
+10. "Place Order" button pe click karo
+    ✅ Button pe correct amount dikhna chahiye
+    ✅ Order successfully place hona chahiye
+
+═══════════════════════════════════════════════════════════════
+
+🎯 EXPECTED RESULTS:
+═══════════════════════════════════════════════════════════════
+
+✅ Product cards fully clickable
+✅ Product detail opens smoothly
+✅ Wishlist button works independently
+✅ Cart shows correct total
+✅ Address screen shows correct amount
+✅ Place Order button shows correct amount
+✅ Empty cart validation works
+✅ Smooth animations (60 FPS)
+
+═══════════════════════════════════════════════════════════════
+
+🚀 AGAR SAB KAAM KARE TO:
+═══════════════════════════════════════════════════════════════
+
+1. Git commit karo:
+   git add .
+   git commit -m "Fixed product card click and payment amount bugs"
+   git push
+
+2. New APK build karo:
+   eas build --platform android --profile preview
+
+3. Wait karo 15-25 minutes
+
+4. APK download karo
+
+5. Old app uninstall karo
+
+6. New APK install karo
+
+7. Test karo physical device pe
+
+═══════════════════════════════════════════════════════════════
+
+❌ AGAR PROBLEM HO TO:
+═══════════════════════════════════════════════════════════════
+
+1. Metro cache clear karo:
+   npm start -- --reset-cache
+
+2. Node modules reinstall karo:
+   rm -rf node_modules
+   npm install
+
+3. App restart karo
+
+4. Console logs check karo for errors
+
+═══════════════════════════════════════════════════════════════
+
+📱 TESTING CHECKLIST:
+═══════════════════════════════════════════════════════════════
+
+Product Click:
+[ ] Home screen products clickable
+[ ] Product list products clickable
+[ ] Similar products carousel clickable
+[ ] Wishlist button works
+[ ] Animation smooth hai
+
+Payment Flow:
+[ ] Cart total correct
+[ ] Empty cart validation
+[ ] Address screen amount correct
+[ ] Place Order button amount correct
+[ ] Order successfully places
+
+═══════════════════════════════════════════════════════════════
+
+🎉 ALL DONE! ENJOY YOUR WORKING APP!

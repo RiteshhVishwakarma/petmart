@@ -65,6 +65,8 @@ DELETE_*.md
 BEFORE_AFTER_*.md
 HOW_TO_*.md
 QUICK_REFERENCE.md
+BUG_*.md
+BUGS_*.md
 
 # Keep only main README
 # README.md - keep this

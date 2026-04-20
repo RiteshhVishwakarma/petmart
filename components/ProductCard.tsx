@@ -44,6 +44,11 @@ const ProductCard = ({ product, onPress, variant = 'grid' }: Props) => {
     }).start();
   };
 
+  const handleCardPress = () => {
+    console.log('ProductCard pressed:', product.name);
+    onPress();
+  };
+
   // Horizontal variant for similar products carousel
   if (variant === 'horizontal') {
     return (
@@ -58,7 +63,7 @@ const ProductCard = ({ product, onPress, variant = 'grid' }: Props) => {
             borderColor: colors.border,
           }}
           activeOpacity={0.85}
-          onPress={onPress}
+          onPress={handleCardPress}
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}
         >
@@ -131,7 +136,7 @@ const ProductCard = ({ product, onPress, variant = 'grid' }: Props) => {
             borderColor: colors.border,
           }}
           activeOpacity={0.85}
-          onPress={onPress}
+          onPress={handleCardPress}
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}
         >

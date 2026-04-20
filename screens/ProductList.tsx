@@ -4,7 +4,7 @@ import {
   ScrollView, RefreshControl 
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RouteProp } from '@react-navigation/native';
+import { RouteProp, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList, Product } from '../types';
 import { getProductsByCategory, getCategories } from '../services/productService';
@@ -21,12 +21,12 @@ import {
 } from '../utils/filterSort';
 
 type Props = {
-  navigation?: NativeStackNavigationProp<RootStackParamList, 'ProductList'>;
   route?: RouteProp<RootStackParamList, 'ProductList'>;
 };
 
-export default function ProductList({ navigation, route }: Props) {
+export default function ProductList({ route }: Props) {
   const { colors } = useTheme();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [activeCategory, setActiveCategory] = useState(route?.params?.category ?? 'all');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -229,7 +229,10 @@ export default function ProductList({ navigation, route }: Props) {
         renderItem={({ item }) => (
           <ProductCard
             product={item}
-            onPress={() => navigation?.navigate('ProductDetail', { product: item })}
+            onPress={() => {
+              console.log('Navigating to ProductDetail with:', item.name);
+              navigation.navigate('ProductDetail', { product: item });
+            }}
           />
         )}
       />

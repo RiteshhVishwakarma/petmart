@@ -1,0 +1,36 @@
+🐛 DEBUG: Product Card Click Issue
+
+═══════════════════════════════════════════════════════════════
+
+STEP 1: Metro cache clear kiya?
+─────────────────────────────────────────────────────────────
+
+Agar nahi kiya to pehle ye karo:
+
+npm start -- --reset-cache
+
+Ya:
+
+npx expo start -c
+
+Phir app me 'r' press karo (reload)
+
+═══════════════════════════════════════════════════════════════
+
+STEP 2: Kahan click kar rahe ho?
+─────────────────────────────────────────────────────────────
+
+1. Home Screen pe featured products?
+2. Product List screen pe grid products?
+3. Product Detail screen pe similar products?
+
+Batao kahan issue hai!
+
+═══════════════════════════════════════════════════════════════
+
+STEP 3: Console me koi error dikha raha hai?
+─────────────────────────────────────────────────────────────
+
+Terminal me dekho koi red error aa raha hai kya?
+
+═══════════════════════════════════════════════════════════════

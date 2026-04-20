@@ -1,0 +1,119 @@
+🚀 NEW APK BUILD KARO - ICON FIX HOGA!
+
+═══════════════════════════════════════════════════════════════
+
+❌ PROBLEM: App icon default dikha raha hai
+
+✅ SOLUTION: New APK build karo (icon files already ready hain!)
+
+═══════════════════════════════════════════════════════════════
+
+🎯 STEP-BY-STEP GUIDE:
+═══════════════════════════════════════════════════════════════
+
+STEP 1: Current Build Stop Karo (Agar Chal Raha Hai)
+─────────────────────────────────────────────────────────────
+
+Terminal me Ctrl+C press karo
+
+
+STEP 2: New Build Start Karo
+─────────────────────────────────────────────────────────────
+
+eas build --platform android --profile preview
+
+
+STEP 3: Wait Karo
+─────────────────────────────────────────────────────────────
+
+⏱️  Build time: 15-25 minutes
+📊 Progress dekho: https://expo.dev/accounts/raajsharma/projects/petMart/builds
+
+
+STEP 4: APK Download Karo
+─────────────────────────────────────────────────────────────
+
+Build complete hone ke baad link se download karo
+
+
+STEP 5: Old App Uninstall Karo (IMPORTANT!)
+─────────────────────────────────────────────────────────────
+
+Phone me:
+Settings > Apps > PetMart > Uninstall
+
+⚠️  Agar old app uninstall nahi karoge to icon change nahi hoga!
+
+
+STEP 6: New APK Install Karo
+─────────────────────────────────────────────────────────────
+
+Downloaded APK ko install karo
+
+
+STEP 7: Check Karo
+─────────────────────────────────────────────────────────────
+
+✅ Home screen pe custom logo icon dikhna chahiye
+✅ App drawer me custom logo icon dikhna chahiye
+✅ Default Expo icon nahi dikhna chahiye
+
+═══════════════════════════════════════════════════════════════
+
+✅ ICON FILES ALREADY READY:
+═══════════════════════════════════════════════════════════════
+
+✅ assets/icon.png - Main icon (ready!)
+✅ assets/adaptive-icon.png - Android adaptive icon (ready!)
+✅ assets/splash-icon.png - Splash screen icon (ready!)
+✅ app.json - Configuration correct!
+
+Bas build karna hai!
+
+═══════════════════════════════════════════════════════════════
+
+⚠️  IMPORTANT NOTES:
+═══════════════════════════════════════════════════════════════
+
+1. Icon sirf APK build me dikhta hai
+2. Expo Go me hamesha Expo icon dikhega
+3. Development me custom icon dikhega
+4. Old app uninstall karna ZAROORI hai
+5. Phone restart karne se bhi help hota hai
+
+═══════════════════════════════════════════════════════════════
+
+🎯 QUICK COMMAND:
+═══════════════════════════════════════════════════════════════
+
+eas build --platform android --profile preview
+
+═══════════════════════════════════════════════════════════════
+
+📱 AFTER BUILD:
+═══════════════════════════════════════════════════════════════
+
+1. Download APK
+2. Uninstall old PetMart app
+3. Install new APK
+4. Open app
+5. ✅ Custom icon dikhega!
+
+═══════════════════════════════════════════════════════════════
+
+💡 TIP: Agar icon abhi bhi nahi dikhe to:
+═══════════════════════════════════════════════════════════════
+
+1. Phone restart karo
+2. Launcher cache clear karo:
+   Settings > Apps > Launcher > Storage > Clear Cache
+3. Dobara install karo
+
+═══════════════════════════════════════════════════════════════
+
+🚀 READY TO BUILD? RUN THIS:
+═══════════════════════════════════════════════════════════════
+
+eas build --platform android --profile preview
+
+═══════════════════════════════════════════════════════════════

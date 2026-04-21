@@ -14,6 +14,7 @@ import { getAllOrders, updateOrderStatus } from '../services/orderService';
 import { uploadImageToCloudinary } from '../services/uploadService';
 import { Product, Order } from '../types';
 import { formatINR } from '../utils/format';
+import SmartProductImage from '../components/SmartProductImage';
 
 const STATUS_FLOW: Order['status'][] = ['placed', 'confirmed', 'shipped', 'delivered'];
 const STATUS_COLORS: Record<string, string> = {
@@ -282,7 +283,7 @@ function ProductsTab() {
       ) : (
         products.map((item) => (
           <View key={item.id} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, borderRadius: 10, padding: 10, marginBottom: 8, borderWidth: 1, borderColor: colors.border, gap: 10 }}>
-            <Image source={{ uri: item.image }} style={{ width: 56, height: 56, borderRadius: 8, resizeMode: 'cover' }} />
+            <SmartProductImage uri={item.image} width={56} height={56} borderRadius={8} />
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 13, fontWeight: '600', color: colors.text }} numberOfLines={1}>{item.name}</Text>
               <Text style={{ fontSize: 12, color: colors.primary, fontWeight: '700', marginTop: 2 }}>{formatINR(item.price)}</Text>

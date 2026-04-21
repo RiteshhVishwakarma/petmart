@@ -18,6 +18,7 @@ import { formatINR } from '../utils/format';
 import { HorizontalProductSkeleton, CategorySkeleton } from '../components/SkeletonLoader';
 import ErrorView, { InlineError } from '../components/ErrorView';
 import { FadeIn, SlideInBottom, ScaleIn, StaggeredItem } from '../components/AnimatedComponents';
+import SmartProductImage from '../components/SmartProductImage';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>;
@@ -583,10 +584,7 @@ export default function HomeScreen({ navigation }: Props) {
                   activeOpacity={0.85}
                 >
                   <View style={{ position: 'relative' }}>
-                    <Image 
-                      source={{ uri: item.image }} 
-                      style={{ width: '100%', height: 130, resizeMode: 'cover' }} 
-                    />
+                    <SmartProductImage uri={item.image} width="100%" height={130} borderRadius={0} />
                     <View style={{
                       position: 'absolute',
                       top: 8,
@@ -710,10 +708,7 @@ export default function HomeScreen({ navigation }: Props) {
                 activeOpacity={0.85}
               >
                 <View style={{ position: 'relative' }}>
-                  <Image 
-                    source={{ uri: item.image }} 
-                    style={{ width: '100%', height: 140, resizeMode: 'cover' }} 
-                  />
+                  <SmartProductImage uri={item.image} width="100%" height={140} borderRadius={0} />
                   <View style={{
                     position: 'absolute',
                     top: 10,
@@ -850,10 +845,7 @@ export default function HomeScreen({ navigation }: Props) {
                   activeOpacity={0.85}
                 >
                   <View style={{ position: 'relative' }}>
-                    <Image 
-                      source={{ uri: item.image }} 
-                      style={{ width: '100%', height: 130, resizeMode: 'cover' }} 
-                    />
+                    <SmartProductImage uri={item.image} width="100%" height={130} borderRadius={0} />
                     <View style={{
                       position: 'absolute',
                       top: 8,

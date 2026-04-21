@@ -9,6 +9,7 @@ import { useTheme } from '../context/ThemeContext';
 import { formatINR } from '../utils/format';
 import { RootStackParamList } from '../types';
 import { showSuccessToast } from '../utils/toast';
+import SmartProductImage from '../components/SmartProductImage';
 
 type Props = {};
 
@@ -57,7 +58,7 @@ export default function WishlistScreen({}: Props) {
               borderWidth: 1, borderColor: colors.border,
             }}
           >
-            <Image source={{ uri: item.image }} style={{ width: 110, height: 110, resizeMode: 'cover' }} />
+            <SmartProductImage uri={item.image} width={110} height={110} borderRadius={0} />
             <View style={{ flex: 1, padding: 12, justifyContent: 'space-between' }}>
               <View>
                 <Text style={{ fontSize: 13, fontWeight: '600', color: colors.text, lineHeight: 18, marginBottom: 4 }} numberOfLines={2}>

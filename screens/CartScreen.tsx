@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { formatINR } from '../utils/format';
 import { RootStackParamList } from '../types';
+import SmartProductImage from '../components/SmartProductImage';
 
 type Props = {};
 
@@ -102,7 +103,7 @@ export default function CartScreen({}: Props) {
             borderRadius: 10, padding: 12,
             borderWidth: 1, borderColor: colors.border, gap: 12,
           }}>
-            <Image source={{ uri: item.image }} style={{ width: 90, height: 90, borderRadius: 8, resizeMode: 'cover' }} />
+            <SmartProductImage uri={item.image} width={90} height={90} borderRadius={8} />
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 13, fontWeight: '600', color: colors.text, marginBottom: 4, lineHeight: 18 }} numberOfLines={2}>
                 {item.name}

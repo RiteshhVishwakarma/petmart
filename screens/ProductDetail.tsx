@@ -14,6 +14,7 @@ import ProductCard from '../components/ProductCard';
 import { showSuccessToast } from '../utils/toast';
 import { calculateOffer } from '../utils/offerCalculations';
 import ImageZoom from '../components/ImageZoom';
+import SmartProductImage from '../components/SmartProductImage';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProductDetail'>;
 
@@ -187,7 +188,7 @@ export default function ProductDetail({ route, navigation }: Props) {
             activeOpacity={0.9}
             onPress={() => setShowImageZoom(true)}
           >
-            <Image source={{ uri: product.image }} style={{ width: '100%', height: 300, resizeMode: 'cover' }} />
+            <SmartProductImage uri={product.image} width="100%" height={300} borderRadius={0} />
             {/* Zoom hint */}
             <View style={{
               position: 'absolute',

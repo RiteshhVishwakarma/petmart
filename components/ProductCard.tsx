@@ -6,6 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useWishlist } from '../context/WishlistContext';
 import { formatINR } from '../utils/format';
 import { calculateOffer, getOfferBadgeText } from '../utils/offerCalculations';
+import SmartProductImage from './SmartProductImage';
 
 // Create animated version of TouchableOpacity
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
@@ -82,7 +83,7 @@ const ProductCard = ({ product, onPress, variant = 'grid' }: Props) => {
           onPressOut={handlePressOut}
         >
           <View style={{ position: 'relative' }}>
-            <Image source={{ uri: product.image }} style={{ width: '100%', height: 140, resizeMode: 'cover' }} />
+            <SmartProductImage uri={product.image} width="100%" height={140} borderRadius={0} />
             
             {/* NEW Badge - Top Priority */}
             {showNewBadge && (
@@ -164,7 +165,7 @@ const ProductCard = ({ product, onPress, variant = 'grid' }: Props) => {
           onPressOut={handlePressOut}
         >
           <View style={{ position: 'relative' }}>
-            <Image source={{ uri: product.image }} style={{ width: '100%', height: 150, resizeMode: 'cover' }} />
+            <SmartProductImage uri={product.image} width="100%" height={150} borderRadius={0} />
             
             {/* NEW Badge - Top Priority */}
             {showNewBadge && (

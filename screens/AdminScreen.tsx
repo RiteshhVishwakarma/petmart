@@ -304,6 +304,7 @@ function OrdersTab() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<Order['status'] | 'all'>('all');
 
   useEffect(() => {
     getAllOrders().then(setOrders).finally(() => setLoading(false));
@@ -329,6 +330,21 @@ function OrdersTab() {
     return STATUS_FLOW[idx + 1];
   };
 
+  // Filter orders by status
+  const filteredOrders = statusFilter === 'all' 
+    ? orders 
+    : orders.filter(order => order.status === statusFilter);
+
+  // Count orders by status
+  const statusCounts = {
+    all: orders.length,
+    placed: orders.filter(o => o.status === 'placed').length,
+    confirmed: orders.filter(o => o.status === 'confirmed').length,
+    shipped: orders.filter(o => o.status === 'shipped').length,
+    delivered: orders.filter(o => o.status === 'delivered').length,
+    cancelled: orders.filter(o => o.status === 'cancelled').length,
+  };
+
   if (loading) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -347,11 +363,134 @@ function OrdersTab() {
   }
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
-      <Text style={{ fontSize: 14, fontWeight: '700', color: colors.text, marginBottom: 4 }}>
-        All Orders ({orders.length})
-      </Text>
-      {orders.map((order) => {
+    <View style={{ flex: 1 }}>
+      {/* Status Filter Tabs */}
+      <View style={{ 
+        backgroundColor: colors.surface, 
+        borderBottomWidth: 1, 
+        borderBottomColor: colors.border,
+        paddingVertical: 12,
+      }}>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 16, gap: 8, paddingRight: 24 }}
+        >
+        {/* All Orders */}
+        <TouchableOpacity
+          onPress={() => setStatusFilter('all')}
+          style={{
+            paddingHorizontal: 18,
+            paddingVertical: 10,
+            borderRadius: 20,
+            borderWidth: 1.5,
+            borderColor: statusFilter === 'all' ? colors.primary : colors.border,
+            backgroundColor: statusFilter === 'all' ? colors.primary : colors.surface,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          <Text style={{ 
+            fontSize: 14, 
+            fontWeight: '700', 
+            color: statusFilter === 'all' ? '#fff' : colors.text 
+          }}>
+            All
+          </Text>
+          <View style={{
+            backgroundColor: statusFilter === 'all' ? 'rgba(255,255,255,0.3)' : colors.border,
+            paddingHorizontal: 8,
+            paddingVertical: 3,
+            borderRadius: 12,
+            minWidth: 24,
+            alignItems: 'center',
+          }}>
+            <Text style={{ 
+              fontSize: 12, 
+              fontWeight: '800', 
+              color: statusFilter === 'all' ? '#fff' : colors.subtext 
+            }}>
+              {statusCounts.all}
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+        {/* Status Filters */}
+        {(['placed', 'confirmed', 'shipped', 'delivered', 'cancelled'] as const).map((status) => {
+          const count = statusCounts[status];
+          const statusColor = STATUS_COLORS[status];
+          const isActive = statusFilter === status;
+          
+          return (
+            <TouchableOpacity
+              key={status}
+              onPress={() => setStatusFilter(status)}
+              style={{
+                paddingHorizontal: 18,
+                paddingVertical: 10,
+                borderRadius: 20,
+                borderWidth: 1.5,
+                borderColor: isActive ? statusColor : colors.border,
+                backgroundColor: isActive ? statusColor : colors.surface,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 8,
+              }}
+            >
+              <Text style={{ 
+                fontSize: 14, 
+                fontWeight: '700', 
+                color: isActive ? '#fff' : colors.text,
+                textTransform: 'capitalize'
+              }}>
+                {status}
+              </Text>
+              {count > 0 && (
+                <View style={{
+                  backgroundColor: isActive ? 'rgba(255,255,255,0.3)' : statusColor + '20',
+                  paddingHorizontal: 8,
+                  paddingVertical: 3,
+                  borderRadius: 12,
+                  minWidth: 24,
+                  alignItems: 'center',
+                }}>
+                  <Text style={{ 
+                    fontSize: 12, 
+                    fontWeight: '800', 
+                    color: isActive ? '#fff' : statusColor 
+                  }}>
+                    {count}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+      </View>
+
+      {/* Orders List */}
+      <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
+        <Text style={{ fontSize: 14, fontWeight: '700', color: colors.text, marginBottom: 4 }}>
+          {statusFilter === 'all' 
+            ? `All Orders (${filteredOrders.length})` 
+            : `${statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)} Orders (${filteredOrders.length})`
+          }
+        </Text>
+        
+        {filteredOrders.length === 0 ? (
+          <View style={{ alignItems: 'center', marginTop: 60, gap: 12 }}>
+            <Ionicons name="filter-outline" size={60} color={colors.border} />
+            <Text style={{ color: colors.text, fontSize: 16, fontWeight: '600' }}>
+              No {statusFilter === 'all' ? '' : statusFilter} orders
+            </Text>
+            <Text style={{ color: colors.subtext, fontSize: 13 }}>
+              Try selecting a different filter
+            </Text>
+          </View>
+        ) : (
+          filteredOrders.map((order) => {
         const statusColor = STATUS_COLORS[order.status] ?? colors.primary;
         const nextStatus = getNextStatus(order.status);
         const date = order.createdAt?.toDate?.()?.toLocaleDateString('en-IN', {
@@ -425,7 +564,9 @@ function OrdersTab() {
             </View>
           </View>
         );
-      })}
-    </ScrollView>
+      })
+        )}
+      </ScrollView>
+    </View>
   );
 }

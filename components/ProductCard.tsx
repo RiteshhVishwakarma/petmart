@@ -28,6 +28,20 @@ const ProductCard = ({ product, onPress, variant = 'grid' }: Props) => {
   const offer = product.mrp ? calculateOffer(product.mrp, product.price) : null;
   const offerBadge = product.mrp ? getOfferBadgeText(product.mrp, product.price) : null;
 
+  // Check if product is new (within 24 hours)
+  const isNewProduct = () => {
+    const productData = product as any;
+    if (!productData.createdAt?.toMillis) return false;
+    
+    const now = Date.now();
+    const twentyFourHours = 24 * 60 * 60 * 1000;
+    const productTime = productData.createdAt.toMillis();
+    
+    return (now - productTime) < twentyFourHours;
+  };
+
+  const showNewBadge = isNewProduct();
+
   const handlePressIn = () => {
     Animated.spring(scaleAnim, {
       toValue: 0.97,
@@ -70,8 +84,15 @@ const ProductCard = ({ product, onPress, variant = 'grid' }: Props) => {
           <View style={{ position: 'relative' }}>
             <Image source={{ uri: product.image }} style={{ width: '100%', height: 140, resizeMode: 'cover' }} />
             
-            {/* Offer Badge */}
-            {offerBadge && (
+            {/* NEW Badge - Top Priority */}
+            {showNewBadge && (
+              <View style={{ position: 'absolute', top: 8, left: 8, backgroundColor: '#10b981', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
+                <Text style={{ color: '#fff', fontSize: 10, fontWeight: '800', letterSpacing: 0.5 }}>NEW</Text>
+              </View>
+            )}
+            
+            {/* Offer Badge - Show only if no NEW badge */}
+            {!showNewBadge && offerBadge && (
               <View style={{ position: 'absolute', top: 8, left: 8, backgroundColor: colors.accent, paddingHorizontal: 6, paddingVertical: 3, borderRadius: 4 }}>
                 <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>{offerBadge}</Text>
               </View>
@@ -145,8 +166,15 @@ const ProductCard = ({ product, onPress, variant = 'grid' }: Props) => {
           <View style={{ position: 'relative' }}>
             <Image source={{ uri: product.image }} style={{ width: '100%', height: 150, resizeMode: 'cover' }} />
             
-            {/* Offer Badge */}
-            {offerBadge && (
+            {/* NEW Badge - Top Priority */}
+            {showNewBadge && (
+              <View style={{ position: 'absolute', top: 8, left: 8, backgroundColor: '#10b981', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 4 }}>
+                <Text style={{ color: '#fff', fontSize: 11, fontWeight: '800', letterSpacing: 0.5 }}>NEW</Text>
+              </View>
+            )}
+            
+            {/* Offer Badge - Show only if no NEW badge */}
+            {!showNewBadge && offerBadge && (
               <View style={{ position: 'absolute', top: 8, left: 8, backgroundColor: colors.accent, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
                 <Text style={{ color: '#fff', fontSize: 11, fontWeight: '700' }}>{offerBadge}</Text>
               </View>

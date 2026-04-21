@@ -21,11 +21,37 @@ export const getProducts = async (shuffle: boolean = false): Promise<Product[]> 
       [products[i], products[j]] = [products[j], products[i]];
     }
   } else {
-    // Sort by createdAt (newest first) - new products on top
+    // 24 Hour Priority Sorting
+    const now = Date.now();
+    const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    
     products.sort((a: any, b: any) => {
       const aTime = a.createdAt?.toMillis?.() || 0;
       const bTime = b.createdAt?.toMillis?.() || 0;
-      return bTime - aTime; // Descending order (newest first)
+      
+      const aIsNew = (now - aTime) < twentyFourHours;
+      const bIsNew = (now - bTime) < twentyFourHours;
+      
+      // Both are new (within 24 hours) - sort by time (newest first)
+      if (aIsNew && bIsNew) {
+        return bTime - aTime;
+      }
+      
+      // Both are old (more than 24 hours) - sort by popularity (rating * reviewCount)
+      if (!aIsNew && !bIsNew) {
+        const aPopularity = (a.rating || 0) * (a.reviewCount || 0);
+        const bPopularity = (b.rating || 0) * (b.reviewCount || 0);
+        
+        // If popularity is same, sort by rating
+        if (aPopularity === bPopularity) {
+          return (b.rating || 0) - (a.rating || 0);
+        }
+        
+        return bPopularity - aPopularity;
+      }
+      
+      // One is new, one is old - new products always on top
+      return aIsNew ? -1 : 1;
     });
   }
   
@@ -47,11 +73,37 @@ export const getProductsByCategory = async (category: string, shuffle: boolean =
       [products[i], products[j]] = [products[j], products[i]];
     }
   } else {
-    // Sort by createdAt (newest first) - new products on top
+    // 24 Hour Priority Sorting
+    const now = Date.now();
+    const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    
     products.sort((a: any, b: any) => {
       const aTime = a.createdAt?.toMillis?.() || 0;
       const bTime = b.createdAt?.toMillis?.() || 0;
-      return bTime - aTime; // Descending order (newest first)
+      
+      const aIsNew = (now - aTime) < twentyFourHours;
+      const bIsNew = (now - bTime) < twentyFourHours;
+      
+      // Both are new (within 24 hours) - sort by time (newest first)
+      if (aIsNew && bIsNew) {
+        return bTime - aTime;
+      }
+      
+      // Both are old (more than 24 hours) - sort by popularity (rating * reviewCount)
+      if (!aIsNew && !bIsNew) {
+        const aPopularity = (a.rating || 0) * (a.reviewCount || 0);
+        const bPopularity = (b.rating || 0) * (b.reviewCount || 0);
+        
+        // If popularity is same, sort by rating
+        if (aPopularity === bPopularity) {
+          return (b.rating || 0) - (a.rating || 0);
+        }
+        
+        return bPopularity - aPopularity;
+      }
+      
+      // One is new, one is old - new products always on top
+      return aIsNew ? -1 : 1;
     });
   }
   

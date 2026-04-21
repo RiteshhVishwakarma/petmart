@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   KeyboardAvoidingView, Platform, ScrollView, Alert,
@@ -7,6 +7,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { signUp } from '../services/authService';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 
 type Props = {
   navigation: NativeStackNavigationProp<any>;
@@ -14,12 +15,21 @@ type Props = {
 
 export default function SignupScreen({ navigation }: Props) {
   const { colors } = useTheme();
+  const { user } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Auto-navigate after successful signup
+  useEffect(() => {
+    if (user) {
+      // User is logged in after signup, navigate to home
+      navigation.replace('Home');
+    }
+  }, [user]);
 
   const handleSignup = async () => {
     if (!name.trim() || !email.trim() || !password || !confirmPassword) {
@@ -37,7 +47,14 @@ export default function SignupScreen({ navigation }: Props) {
     setLoading(true);
     try {
       await signUp(name.trim(), email.trim(), password);
-      // Navigation handled automatically by AuthContext
+      // Show success alert
+      Alert.alert(
+        'Account Created! 🎉',
+        'Welcome to PetMart! You are now logged in.',
+        [{ text: 'Start Shopping' }]
+      );
+      // User is automatically logged in by Firebase
+      // AuthContext will detect the user and navigate automatically
     } catch (e: any) {
       const msg =
         e.code === 'auth/email-already-in-use' ? 'This email is already registered.' :

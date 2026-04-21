@@ -10,17 +10,52 @@ import { products as staticProducts, categories as staticCategories } from '../d
 const PRODUCTS_COL = 'products';
 
 // ─── Fetch all products from Firestore ───────────────────────────────────────
-export const getProducts = async (): Promise<Product[]> => {
+export const getProducts = async (shuffle: boolean = false): Promise<Product[]> => {
   const snap = await getDocs(collection(db, PRODUCTS_COL));
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Product));
+  let products = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Product));
+  
+  if (shuffle) {
+    // Fisher-Yates shuffle algorithm for random order
+    for (let i = products.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [products[i], products[j]] = [products[j], products[i]];
+    }
+  } else {
+    // Sort by createdAt (newest first) - new products on top
+    products.sort((a: any, b: any) => {
+      const aTime = a.createdAt?.toMillis?.() || 0;
+      const bTime = b.createdAt?.toMillis?.() || 0;
+      return bTime - aTime; // Descending order (newest first)
+    });
+  }
+  
+  return products;
 };
 
 // ─── Fetch by category ───────────────────────────────────────────────────────
-export const getProductsByCategory = async (category: string): Promise<Product[]> => {
-  if (category === 'all') return getProducts();
+export const getProductsByCategory = async (category: string, shuffle: boolean = false): Promise<Product[]> => {
+  if (category === 'all') return getProducts(shuffle);
+  
   const q = query(collection(db, PRODUCTS_COL), where('category', '==', category));
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Product));
+  let products = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Product));
+  
+  if (shuffle) {
+    // Fisher-Yates shuffle algorithm for random order
+    for (let i = products.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [products[i], products[j]] = [products[j], products[i]];
+    }
+  } else {
+    // Sort by createdAt (newest first) - new products on top
+    products.sort((a: any, b: any) => {
+      const aTime = a.createdAt?.toMillis?.() || 0;
+      const bTime = b.createdAt?.toMillis?.() || 0;
+      return bTime - aTime; // Descending order (newest first)
+    });
+  }
+  
+  return products;
 };
 
 // ─── Fetch single product ────────────────────────────────────────────────────

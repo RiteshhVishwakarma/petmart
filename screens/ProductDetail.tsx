@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Image, ScrollView, Text, TouchableOpacity, View, FlatList, Share, Alert, TextInput, Modal } from 'react-native';
+import { Image, ScrollView, Text, TouchableOpacity, View, FlatList, Share, Alert, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList, Product, Review } from '../types';
@@ -9,7 +9,7 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
 import { getSimilarProducts } from '../services/productService';
-import { getProductReviews, addReview, hasUserReviewed } from '../services/reviewService';
+import { getProductReviews, addReview, hasUserReviewed, getUserReview, updateReview, deleteReview } from '../services/reviewService';
 import ProductCard from '../components/ProductCard';
 import { showSuccessToast } from '../utils/toast';
 import { calculateOffer } from '../utils/offerCalculations';
@@ -33,6 +33,9 @@ export default function ProductDetail({ route, navigation }: Props) {
   const [reviewComment, setReviewComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
   const [userHasReviewed, setUserHasReviewed] = useState(false);
+  const [userReview, setUserReview] = useState<Review | null>(null);
+  const [editingReview, setEditingReview] = useState(false);
+  const [averageRating, setAverageRating] = useState<number>(0);
   const wished = isWishlisted(product.id);
   
   // Calculate offer details
@@ -49,12 +52,26 @@ export default function ProductDetail({ route, navigation }: Props) {
   const loadReviews = async () => {
     const productReviews = await getProductReviews(product.id);
     setReviews(productReviews);
+    
+    // Calculate average rating from reviews
+    if (productReviews.length > 0) {
+      const totalRating = productReviews.reduce((sum, review) => sum + review.rating, 0);
+      const avg = totalRating / productReviews.length;
+      setAverageRating(parseFloat(avg.toFixed(1)));
+    } else {
+      setAverageRating(0);
+    }
   };
 
   const checkUserReview = async () => {
     if (user) {
       const hasReviewed = await hasUserReviewed(product.id, user.uid);
       setUserHasReviewed(hasReviewed);
+      
+      if (hasReviewed) {
+        const review = await getUserReview(product.id, user.uid);
+        setUserReview(review);
+      }
     }
   };
 
@@ -84,32 +101,80 @@ export default function ProductDetail({ route, navigation }: Props) {
       return;
     }
 
-    if (reviewComment.trim().length < 10) {
-      Alert.alert('Invalid Review', 'Please write at least 10 characters');
+    if (reviewComment.trim().length === 0) {
+      Alert.alert('Invalid Review', 'Please write something about the product');
       return;
     }
 
     setSubmittingReview(true);
     try {
-      await addReview(
-        product.id,
-        user.uid,
-        profile?.name || user.displayName || 'Anonymous',
-        reviewRating,
-        reviewComment.trim()
-      );
+      if (editingReview && userReview) {
+        // Update existing review
+        await updateReview(
+          userReview.id,
+          reviewRating,
+          reviewComment.trim()
+        );
+        showSuccessToast('Review updated successfully!');
+      } else {
+        // Add new review
+        await addReview(
+          product.id,
+          user.uid,
+          profile?.name || user.displayName || 'Anonymous',
+          reviewRating,
+          reviewComment.trim()
+        );
+        showSuccessToast('Review submitted successfully!');
+      }
       
-      showSuccessToast('Review submitted successfully!');
       setShowReviewModal(false);
       setReviewComment('');
       setReviewRating(5);
+      setEditingReview(false);
       loadReviews();
-      setUserHasReviewed(true);
+      checkUserReview();
     } catch (error) {
       Alert.alert('Error', 'Failed to submit review. Please try again.');
     } finally {
       setSubmittingReview(false);
     }
+  };
+
+  const handleEditReview = () => {
+    if (userReview) {
+      setReviewRating(userReview.rating);
+      setReviewComment(userReview.comment);
+      setEditingReview(true);
+      setShowReviewModal(true);
+    }
+  };
+
+  const handleDeleteReview = () => {
+    if (!userReview) return;
+
+    Alert.alert(
+      'Delete Review',
+      'Are you sure you want to delete your review?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteReview(userReview.id, product.id);
+              showSuccessToast('Review deleted successfully!');
+              setUserHasReviewed(false);
+              setUserReview(null);
+              loadReviews();
+            } catch (error) {
+              Alert.alert('Error', 'Failed to delete review. Please try again.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -181,11 +246,13 @@ export default function ProductDetail({ route, navigation }: Props) {
           {/* Rating */}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: colors.success, paddingHorizontal: 7, paddingVertical: 3, borderRadius: 4 }}>
-              <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>{product.rating || 4.5}</Text>
-              <Ionicons name="star" size={11} color="#fff" />
+              <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>
+                {averageRating > 0 ? averageRating : 'No ratings'}
+              </Text>
+              {averageRating > 0 && <Ionicons name="star" size={11} color="#fff" />}
             </View>
             <Text style={{ fontSize: 13, color: colors.subtext }}>
-              {product.reviewCount || reviews.length} {(product.reviewCount || reviews.length) === 1 ? 'rating' : 'ratings'}
+              {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}
             </Text>
           </View>
 
@@ -280,6 +347,44 @@ export default function ProductDetail({ route, navigation }: Props) {
                   </Text>
                 </TouchableOpacity>
               )}
+              {user && userHasReviewed && (
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <TouchableOpacity
+                    onPress={handleEditReview}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 4,
+                      backgroundColor: colors.primary + '15',
+                      paddingHorizontal: 12,
+                      paddingVertical: 6,
+                      borderRadius: 6,
+                    }}
+                  >
+                    <Ionicons name="pencil-outline" size={14} color={colors.primary} />
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: colors.primary }}>
+                      Edit
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={handleDeleteReview}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 4,
+                      backgroundColor: colors.accent + '15',
+                      paddingHorizontal: 12,
+                      paddingVertical: 6,
+                      borderRadius: 6,
+                    }}
+                  >
+                    <Ionicons name="trash-outline" size={14} color={colors.accent} />
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: colors.accent }}>
+                      Delete
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
 
             {reviews.length === 0 ? (
@@ -326,10 +431,24 @@ export default function ProductDetail({ route, navigation }: Props) {
                     }}
                   >
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <View>
-                        <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>
-                          {review.userName}
-                        </Text>
+                      <View style={{ flex: 1 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                          <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>
+                            {review.userName}
+                          </Text>
+                          {review.userId === user?.uid && (
+                            <View style={{ 
+                              backgroundColor: colors.primary + '20', 
+                              paddingHorizontal: 6, 
+                              paddingVertical: 2, 
+                              borderRadius: 4 
+                            }}>
+                              <Text style={{ fontSize: 10, fontWeight: '700', color: colors.primary }}>
+                                You
+                              </Text>
+                            </View>
+                          )}
+                        </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
                           {[1, 2, 3, 4, 5].map((star) => (
                             <Ionicons
@@ -341,12 +460,44 @@ export default function ProductDetail({ route, navigation }: Props) {
                           ))}
                         </View>
                       </View>
-                      <Text style={{ fontSize: 11, color: colors.subtext }}>
-                        {review.createdAt?.toDate?.()?.toLocaleDateString('en-IN', {
-                          day: 'numeric',
-                          month: 'short',
-                        }) || 'Recently'}
-                      </Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+                        <Text style={{ fontSize: 11, color: colors.subtext }}>
+                          {review.createdAt?.toDate?.()?.toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                          }) || 'Recently'}
+                        </Text>
+                        {/* Admin can delete any review */}
+                        {profile?.role === 'admin' && (
+                          <TouchableOpacity
+                            onPress={() => {
+                              Alert.alert(
+                                'Delete Review',
+                                `Delete review by ${review.userName}?`,
+                                [
+                                  { text: 'Cancel', style: 'cancel' },
+                                  {
+                                    text: 'Delete',
+                                    style: 'destructive',
+                                    onPress: async () => {
+                                      try {
+                                        await deleteReview(review.id, product.id);
+                                        showSuccessToast('Review deleted successfully!');
+                                        loadReviews();
+                                      } catch (error) {
+                                        Alert.alert('Error', 'Failed to delete review.');
+                                      }
+                                    },
+                                  },
+                                ]
+                              );
+                            }}
+                            style={{ padding: 2 }}
+                          >
+                            <Ionicons name="trash-outline" size={16} color={colors.accent} />
+                          </TouchableOpacity>
+                        )}
+                      </View>
                     </View>
                     <Text style={{ fontSize: 13, color: colors.text, lineHeight: 20 }}>
                       {review.comment}
@@ -406,102 +557,145 @@ export default function ProductDetail({ route, navigation }: Props) {
         visible={showReviewModal}
         transparent
         animationType="slide"
-        onRequestClose={() => setShowReviewModal(false)}
+        onRequestClose={() => {
+          setShowReviewModal(false);
+          setEditingReview(false);
+          setReviewComment('');
+          setReviewRating(5);
+        }}
       >
-        <View style={{ 
-          flex: 1, 
-          backgroundColor: 'rgba(0,0,0,0.5)', 
-          justifyContent: 'flex-end' 
-        }}>
-          <View style={{
-            backgroundColor: colors.surface,
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-            paddingBottom: 30,
-            maxHeight: '80%',
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <View style={{ 
+            flex: 1, 
+            backgroundColor: 'rgba(0,0,0,0.5)', 
+            justifyContent: 'flex-end' 
           }}>
             <View style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: 16,
-              borderBottomWidth: 1,
-              borderBottomColor: colors.border,
+              backgroundColor: colors.surface,
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              paddingBottom: 30,
+              maxHeight: '80%',
             }}>
-              <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text }}>
-                Write a Review
-              </Text>
-              <TouchableOpacity onPress={() => setShowReviewModal(false)}>
-                <Ionicons name="close" size={24} color={colors.text} />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView style={{ padding: 16 }}>
-              {/* Rating Stars */}
-              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text, marginBottom: 10 }}>
-                Your Rating
-              </Text>
-              <View style={{ flexDirection: 'row', gap: 12, marginBottom: 20 }}>
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <TouchableOpacity
-                    key={star}
-                    onPress={() => setReviewRating(star)}
-                  >
-                    <Ionicons
-                      name={star <= reviewRating ? 'star' : 'star-outline'}
-                      size={32}
-                      color="#f59e0b"
-                    />
-                  </TouchableOpacity>
-                ))}
+              <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: 16,
+                borderBottomWidth: 1,
+                borderBottomColor: colors.border,
+              }}>
+                <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text }}>
+                  {editingReview ? 'Edit Review' : 'Write a Review'}
+                </Text>
+                <TouchableOpacity onPress={() => {
+                  setShowReviewModal(false);
+                  setEditingReview(false);
+                  setReviewComment('');
+                  setReviewRating(5);
+                }}>
+                  <Ionicons name="close" size={24} color={colors.text} />
+                </TouchableOpacity>
               </View>
 
-              {/* Review Comment */}
-              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text, marginBottom: 10 }}>
-                Your Review
-              </Text>
-              <TextInput
-                value={reviewComment}
-                onChangeText={setReviewComment}
-                placeholder="Share your experience with this product..."
-                placeholderTextColor={colors.subtext}
-                multiline
-                numberOfLines={6}
-                textAlignVertical="top"
-                style={{
-                  backgroundColor: colors.inputBg,
-                  borderRadius: 12,
-                  padding: 12,
-                  fontSize: 14,
-                  color: colors.text,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  minHeight: 120,
-                  marginBottom: 20,
-                }}
-              />
-
-              {/* Submit Button */}
-              <TouchableOpacity
-                onPress={handleSubmitReview}
-                disabled={submittingReview || reviewComment.trim().length < 10}
-                style={{
-                  backgroundColor: 
-                    submittingReview || reviewComment.trim().length < 10
-                      ? colors.border
-                      : colors.primary,
-                  paddingVertical: 14,
-                  borderRadius: 10,
-                  alignItems: 'center',
-                }}
-              >
-                <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700' }}>
-                  {submittingReview ? 'Submitting...' : 'Submit Review'}
+              <ScrollView style={{ padding: 16 }} keyboardShouldPersistTaps="handled">
+                {/* Rating Stars */}
+                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text, marginBottom: 10 }}>
+                  Your Rating
                 </Text>
-              </TouchableOpacity>
-            </ScrollView>
+                <View style={{ flexDirection: 'row', gap: 12, marginBottom: 20 }}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <TouchableOpacity
+                      key={star}
+                      onPress={() => setReviewRating(star)}
+                    >
+                      <Ionicons
+                        name={star <= reviewRating ? 'star' : 'star-outline'}
+                        size={32}
+                        color="#f59e0b"
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* Review Comment */}
+                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text, marginBottom: 10 }}>
+                  Your Review
+                </Text>
+                <TextInput
+                  value={reviewComment}
+                  onChangeText={(text) => {
+                    if (text.length <= 250) {
+                      setReviewComment(text);
+                    }
+                  }}
+                  placeholder="Share your experience with this product..."
+                  placeholderTextColor={colors.subtext}
+                  multiline
+                  numberOfLines={6}
+                  textAlignVertical="top"
+                  maxLength={250}
+                  style={{
+                    backgroundColor: colors.inputBg,
+                    borderRadius: 12,
+                    padding: 12,
+                    fontSize: 14,
+                    color: colors.text,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    minHeight: 120,
+                    marginBottom: 8,
+                  }}
+                />
+                {/* Character Counter */}
+                <View style={{ 
+                  flexDirection: 'row', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  marginBottom: 20 
+                }}>
+                  <Text style={{ 
+                    fontSize: 12, 
+                    color: reviewComment.length === 0 ? colors.subtext : colors.text 
+                  }}>
+                    {reviewComment.length === 0 ? 'Write your thoughts...' : ''}
+                  </Text>
+                  <Text style={{ 
+                    fontSize: 12, 
+                    fontWeight: '600',
+                    color: reviewComment.length >= 250 ? colors.accent : colors.subtext 
+                  }}>
+                    {reviewComment.length}/250
+                  </Text>
+                </View>
+
+                {/* Submit Button */}
+                <TouchableOpacity
+                  onPress={handleSubmitReview}
+                  disabled={submittingReview || reviewComment.trim().length === 0}
+                  style={{
+                    backgroundColor: 
+                      submittingReview || reviewComment.trim().length === 0
+                        ? colors.border
+                        : colors.primary,
+                    paddingVertical: 14,
+                    borderRadius: 10,
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700' }}>
+                    {submittingReview 
+                      ? (editingReview ? 'Updating...' : 'Submitting...') 
+                      : (editingReview ? 'Update Review' : 'Submit Review')}
+                  </Text>
+                </TouchableOpacity>
+              </ScrollView>
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Bottom Action Bar */}

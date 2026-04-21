@@ -52,14 +52,15 @@ export default function HomeScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [refreshCount, setRefreshCount] = useState(0); // Track refresh count
   const inputRef = useRef<TextInput>(null);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Fetch products from Firestore on mount
-  const fetchProducts = useCallback(async () => {
+  const fetchProducts = useCallback(async (shouldShuffle: boolean = false) => {
     try {
       setError(null);
-      const data = await getProducts();
+      const data = await getProducts(shouldShuffle);
       setAllProducts(data);
       setFeatured(data.slice(0, 4));
     } catch (err) {
@@ -71,15 +72,26 @@ export default function HomeScreen({ navigation }: Props) {
   }, []);
 
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(false); // Initial load - sorted by newest first
   }, [fetchProducts]);
 
   // Pull to refresh
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchProducts();
+    const newCount = refreshCount + 1;
+    setRefreshCount(newCount);
+    
+    // Shuffle after 2-3 refreshes (randomly between 2 and 3)
+    const shouldShuffle = newCount >= 2 && Math.random() > 0.3;
+    
+    await fetchProducts(shouldShuffle);
     setRefreshing(false);
-  }, [fetchProducts]);
+    
+    // Reset counter after shuffle
+    if (shouldShuffle) {
+      setRefreshCount(0);
+    }
+  }, [fetchProducts, refreshCount]);
 
   // Load recent searches
   useEffect(() => {
@@ -598,7 +610,7 @@ export default function HomeScreen({ navigation }: Props) {
                         color: '#92400e', 
                         fontWeight: '700' 
                       }}>
-                        {item.rating || 4.5}
+                        {item.rating ? item.rating : 'New'}
                       </Text>
                     </View>
                   </View>

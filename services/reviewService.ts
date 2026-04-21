@@ -9,6 +9,7 @@ import {
   doc,
   updateDoc,
   getDoc,
+  deleteDoc,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Review } from '../types';
@@ -141,5 +142,74 @@ export async function hasUserReviewed(
   } catch (error) {
     console.error('❌ Error checking user review:', error);
     return false;
+  }
+}
+
+/**
+ * Get user's review for a product
+ */
+export async function getUserReview(
+  productId: string,
+  userId: string
+): Promise<Review | null> {
+  try {
+    const q = query(
+      collection(db, REVIEWS_COLLECTION),
+      where('productId', '==', productId),
+      where('userId', '==', userId)
+    );
+
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) return null;
+
+    const doc = snapshot.docs[0];
+    return {
+      id: doc.id,
+      ...doc.data(),
+    } as Review;
+  } catch (error) {
+    console.error('❌ Error getting user review:', error);
+    return null;
+  }
+}
+
+/**
+ * Update user's review
+ */
+export async function updateReview(
+  reviewId: string,
+  rating: number,
+  comment: string
+): Promise<void> {
+  try {
+    const reviewRef = doc(db, REVIEWS_COLLECTION, reviewId);
+    await updateDoc(reviewRef, {
+      rating,
+      comment,
+      updatedAt: Timestamp.now(),
+    });
+
+    // Get productId from review to update product rating
+    const reviewDoc = await getDoc(reviewRef);
+    if (reviewDoc.exists()) {
+      const productId = reviewDoc.data().productId;
+      await updateProductRating(productId);
+    }
+  } catch (error) {
+    console.error('❌ Error updating review:', error);
+    throw error;
+  }
+}
+
+/**
+ * Delete user's review
+ */
+export async function deleteReview(reviewId: string, productId: string): Promise<void> {
+  try {
+    await deleteDoc(doc(db, REVIEWS_COLLECTION, reviewId));
+    await updateProductRating(productId);
+  } catch (error) {
+    console.error('❌ Error deleting review:', error);
+    throw error;
   }
 }

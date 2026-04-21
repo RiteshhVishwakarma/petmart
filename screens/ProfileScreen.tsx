@@ -35,9 +35,22 @@ export default function ProfileScreen({ navigation }: { navigation?: any }) {
       {
         text: 'Logout', style: 'destructive',
         onPress: async () => {
-          setLoggingOut(true);
-          await logOut();
-          // RootNavigator automatically switches to AuthNavigator
+          try {
+            setLoggingOut(true);
+            await logOut();
+            // Force navigation to home after logout
+            if (navigation) {
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Home' }],
+              });
+            }
+          } catch (error) {
+            console.error('Logout error:', error);
+            Alert.alert('Error', 'Failed to logout. Please try again.');
+          } finally {
+            setLoggingOut(false);
+          }
         },
       },
     ]);

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
 import { useTheme } from '../context/ThemeContext';
@@ -9,14 +10,13 @@ import { formatINR } from '../utils/format';
 import { RootStackParamList } from '../types';
 import { showSuccessToast } from '../utils/toast';
 
-type Props = {
-  navigation?: NativeStackNavigationProp<RootStackParamList, 'Wishlist'>;
-};
+type Props = {};
 
-export default function WishlistScreen({ navigation }: Props) {
+export default function WishlistScreen({}: Props) {
   const { wishlist, toggleWishlist } = useWishlist();
   const { addToCart } = useCart();
   const { colors } = useTheme();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   if (wishlist.length === 0) {
     return (
@@ -26,7 +26,10 @@ export default function WishlistScreen({ navigation }: Props) {
         <Text style={{ fontSize: 14, color: colors.subtext }}>Save items you love here</Text>
         <TouchableOpacity
           style={{ marginTop: 8, backgroundColor: colors.primary, paddingHorizontal: 28, paddingVertical: 12, borderRadius: 8 }}
-          onPress={() => navigation?.navigate('ProductList')}
+          onPress={() => {
+            console.log('Browse Products button pressed!');
+            navigation.navigate('ProductList');
+          }}
         >
           <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>Browse Products</Text>
         </TouchableOpacity>
@@ -44,7 +47,10 @@ export default function WishlistScreen({ navigation }: Props) {
         renderItem={({ item }) => (
           <TouchableOpacity
             activeOpacity={0.9}
-            onPress={() => navigation?.navigate('ProductDetail', { product: item })}
+            onPress={() => {
+              console.log('Product clicked:', item.name);
+              navigation.navigate('ProductDetail', { product: item });
+            }}
             style={{
               flexDirection: 'row', backgroundColor: colors.card,
               borderRadius: 12, overflow: 'hidden',

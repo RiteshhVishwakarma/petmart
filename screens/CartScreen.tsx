@@ -2,24 +2,30 @@ import React from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, Animated, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { formatINR } from '../utils/format';
 import { RootStackParamList } from '../types';
-import { FadeIn, SlideInBottom } from '../components/AnimatedComponents';
 
-type Props = { navigation?: NativeStackNavigationProp<RootStackParamList, 'Cart'> };
+type Props = {};
 
-export default function CartScreen({ navigation }: Props) {
+export default function CartScreen({}: Props) {
   const { cartItems, removeFromCart, increaseQty, decreaseQty, totalPrice, totalItems } = useCart();
   const { user } = useAuth();
   const { colors } = useTheme();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   
   // Animation for checkout button
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
   const handleCheckout = () => {
+    console.log('Checkout button pressed!');
+    console.log('Cart items:', cartItems.length);
+    console.log('Total price:', totalPrice);
+    console.log('User:', user ? 'Logged in' : 'Not logged in');
+    
     // Validate cart before checkout
     if (cartItems.length === 0) {
       Alert.alert('Empty Cart', 'Your cart is empty. Please add some items first!');
@@ -34,10 +40,12 @@ export default function CartScreen({ navigation }: Props) {
     
     if (!user) {
       // Not logged in - redirect to login with return path
-      navigation?.navigate('Login', { returnTo: 'Address' });
+      console.log('Navigating to Login...');
+      navigation.navigate('Login', { returnTo: 'Address' });
     } else {
       // Logged in - proceed to address
-      navigation?.navigate('Address');
+      console.log('Navigating to Address...');
+      navigation.navigate('Address');
     }
   };
 
@@ -173,6 +181,7 @@ export default function CartScreen({ navigation }: Props) {
         }} onPress={() => {
           animateCheckoutButton();
           handleCheckout();
+          console.log("Button Pressed")
         }}>
           <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
             <Text style={{ color: '#fff', fontWeight: '700', fontSize: 15 }}>Place Order</Text>

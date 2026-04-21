@@ -102,7 +102,9 @@ const ProductCard = ({ product, onPress, variant = 'grid' }: Props) => {
             </Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginBottom: 4 }}>
               <Ionicons name="star" size={10} color="#f5a623" />
-              <Text style={{ fontSize: 10, color: colors.subtext }}>4.5</Text>
+              <Text style={{ fontSize: 10, color: colors.subtext }}>
+                {product.rating ? product.rating : 'New'}
+              </Text>
             </View>
             
             {/* Price with MRP */}
@@ -176,7 +178,7 @@ const ProductCard = ({ product, onPress, variant = 'grid' }: Props) => {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginBottom: 5 }}>
               <Ionicons name="star" size={11} color="#f5a623" />
               <Text style={{ fontSize: 11, color: colors.subtext }}>
-                {product.rating || 4.5} · {product.reviewCount || 120}
+                {product.rating ? `${product.rating} · ${product.reviewCount || 0}` : 'New'}
               </Text>
             </View>
             

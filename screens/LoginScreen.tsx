@@ -41,6 +41,12 @@ export default function LoginScreen({ navigation, route }: Props) {
     setLoading(true);
     try {
       await logIn(email.trim(), password);
+      // Show success alert
+      Alert.alert(
+        'Login Successful! 🎉',
+        'Welcome back to PetMart!',
+        [{ text: 'OK' }]
+      );
       // Redirect handled by useEffect above
     } catch (e: any) {
       const msg =

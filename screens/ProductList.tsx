@@ -32,6 +32,7 @@ export default function ProductList({ route }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [refreshCount, setRefreshCount] = useState(0); // Track refresh count
   
   // Filter & Sort states
   const [sortBy, setSortBy] = useState<SortOption>('popularity');
@@ -41,10 +42,10 @@ export default function ProductList({ route }: Props) {
   
   const categories = getCategories();
 
-  const fetchProducts = useCallback(async (category: string) => {
+  const fetchProducts = useCallback(async (category: string, shouldShuffle: boolean = false) => {
     try {
       setError(null);
-      const data = await getProductsByCategory(category);
+      const data = await getProductsByCategory(category, shouldShuffle);
       setProducts(data);
     } catch (err) {
       console.error('Error fetching products:', err);
@@ -56,15 +57,27 @@ export default function ProductList({ route }: Props) {
 
   useEffect(() => {
     setLoading(true);
-    fetchProducts(activeCategory);
+    setRefreshCount(0); // Reset counter when category changes
+    fetchProducts(activeCategory, false); // Initial load - sorted by newest first
   }, [activeCategory, fetchProducts]);
 
   // Pull to refresh
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchProducts(activeCategory);
+    const newCount = refreshCount + 1;
+    setRefreshCount(newCount);
+    
+    // Shuffle after 2-3 refreshes (randomly between 2 and 3)
+    const shouldShuffle = newCount >= 2 && Math.random() > 0.3;
+    
+    await fetchProducts(activeCategory, shouldShuffle);
     setRefreshing(false);
-  }, [activeCategory, fetchProducts]);
+    
+    // Reset counter after shuffle
+    if (shouldShuffle) {
+      setRefreshCount(0);
+    }
+  }, [activeCategory, fetchProducts, refreshCount]);
 
   // Apply filters and sorting
   const filteredProducts = filterAndSortProducts(products, priceRange, sortBy);

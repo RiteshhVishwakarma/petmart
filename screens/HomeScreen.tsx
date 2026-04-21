@@ -62,7 +62,8 @@ export default function HomeScreen({ navigation }: Props) {
       setError(null);
       const data = await getProducts(shouldShuffle);
       setAllProducts(data);
-      setFeatured(data.slice(0, 4));
+      // Show more featured products - 8 instead of 4
+      setFeatured(data.slice(0, 8));
     } catch (err) {
       console.error('Error fetching products:', err);
       setError('Failed to load products. Please check your internet connection.');
@@ -509,6 +510,162 @@ export default function HomeScreen({ navigation }: Props) {
         </View>
         </ScaleIn>
 
+        {/* New Arrivals Section - Show latest 6 products */}
+        <SlideInBottom delay={350}>
+          <View style={{ marginBottom: 28 }}>
+            <View style={{ 
+              flexDirection: 'row', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              paddingHorizontal: 16, 
+              marginBottom: 16 
+            }}>
+              <View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                  <View style={{
+                    backgroundColor: '#10b981',
+                    paddingHorizontal: 8,
+                    paddingVertical: 3,
+                    borderRadius: 6,
+                  }}>
+                    <Text style={{ color: '#fff', fontSize: 10, fontWeight: '800', letterSpacing: 0.5 }}>
+                      NEW
+                    </Text>
+                  </View>
+                  <Text style={{ fontSize: 20, fontWeight: '800', color: colors.text, letterSpacing: -0.5 }}>
+                    New Arrivals
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 13, color: colors.subtext, marginTop: 2 }}>
+                  Fresh products just for you
+                </Text>
+              </View>
+              <TouchableOpacity 
+                onPress={() => navigation.navigate('ProductList')}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 4,
+                  paddingHorizontal: 12,
+                  paddingVertical: 6,
+                  borderRadius: 8,
+                  backgroundColor: colors.primary + '15'
+                }}
+              >
+                <Text style={{ fontSize: 13, fontWeight: '700', color: colors.primary }}>
+                  View All
+                </Text>
+                <Ionicons name="arrow-forward" size={14} color={colors.primary} />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={allProducts.slice(0, 6)}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={{ 
+                    width: 160, 
+                    backgroundColor: colors.card, 
+                    borderRadius: 14, 
+                    overflow: 'hidden', 
+                    borderWidth: 1, 
+                    borderColor: colors.border,
+                    elevation: 2,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.06,
+                    shadowRadius: 4,
+                  }}
+                  onPress={() => navigation.navigate('ProductDetail', { product: item })}
+                  activeOpacity={0.85}
+                >
+                  <View style={{ position: 'relative' }}>
+                    <Image 
+                      source={{ uri: item.image }} 
+                      style={{ width: '100%', height: 130, resizeMode: 'cover' }} 
+                    />
+                    <View style={{
+                      position: 'absolute',
+                      top: 8,
+                      left: 8,
+                      backgroundColor: '#10b981',
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 6,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}>
+                      <Ionicons name="sparkles" size={10} color="#fff" />
+                      <Text style={{ color: '#fff', fontSize: 10, fontWeight: '800' }}>
+                        NEW
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={{ padding: 10 }}>
+                    <Text style={{ 
+                      fontSize: 13, 
+                      fontWeight: '700', 
+                      color: colors.text, 
+                      marginBottom: 6, 
+                      lineHeight: 17,
+                      height: 34
+                    }} numberOfLines={2}>
+                      {item.name}
+                    </Text>
+                    <View style={{ 
+                      flexDirection: 'row', 
+                      alignItems: 'center', 
+                      justifyContent: 'space-between',
+                      marginBottom: 6
+                    }}>
+                      <Text style={{ 
+                        fontSize: 15, 
+                        fontWeight: '900', 
+                        color: colors.primary 
+                      }}>
+                        {formatINR(item.price)}
+                      </Text>
+                      {item.rating && (
+                        <View style={{ 
+                          flexDirection: 'row', 
+                          alignItems: 'center', 
+                          gap: 3,
+                          backgroundColor: '#fef3c7',
+                          paddingHorizontal: 5,
+                          paddingVertical: 2,
+                          borderRadius: 4
+                        }}>
+                          <Ionicons name="star" size={10} color="#f59e0b" />
+                          <Text style={{ 
+                            fontSize: 10, 
+                            color: '#92400e', 
+                            fontWeight: '700' 
+                          }}>
+                            {item.rating}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              )}
+              ListEmptyComponent={
+                loading ? (
+                  <View style={{ flexDirection: 'row', gap: 12 }}>
+                    {[1, 2, 3].map((i) => (
+                      <HorizontalProductSkeleton key={i} />
+                    ))}
+                  </View>
+                ) : null
+              }
+            />
+          </View>
+        </SlideInBottom>
+
         {/* Featured Products - Enhanced */}
         <SlideInBottom delay={400}>
           <View style={{ marginBottom: 28 }}>
@@ -644,6 +801,130 @@ export default function HomeScreen({ navigation }: Props) {
             }
           />
         </View>
+        </SlideInBottom>
+
+        {/* Best Sellers Section */}
+        <SlideInBottom delay={450}>
+          <View style={{ marginBottom: 28 }}>
+            <View style={{ 
+              flexDirection: 'row', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              paddingHorizontal: 16, 
+              marginBottom: 16 
+            }}>
+              <View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                  <Ionicons name="trophy" size={22} color="#f59e0b" />
+                  <Text style={{ fontSize: 20, fontWeight: '800', color: colors.text, letterSpacing: -0.5 }}>
+                    Best Sellers
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 13, color: colors.subtext, marginTop: 2 }}>
+                  Top rated by pet parents
+                </Text>
+              </View>
+            </View>
+            <FlatList
+              data={allProducts.filter(p => p.rating && p.rating >= 4).slice(0, 6)}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={{ 
+                    width: 160, 
+                    backgroundColor: colors.card, 
+                    borderRadius: 14, 
+                    overflow: 'hidden', 
+                    borderWidth: 1, 
+                    borderColor: colors.border,
+                    elevation: 2,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.06,
+                    shadowRadius: 4,
+                  }}
+                  onPress={() => navigation.navigate('ProductDetail', { product: item })}
+                  activeOpacity={0.85}
+                >
+                  <View style={{ position: 'relative' }}>
+                    <Image 
+                      source={{ uri: item.image }} 
+                      style={{ width: '100%', height: 130, resizeMode: 'cover' }} 
+                    />
+                    <View style={{
+                      position: 'absolute',
+                      top: 8,
+                      left: 8,
+                      backgroundColor: '#f59e0b',
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 6,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}>
+                      <Ionicons name="star" size={10} color="#fff" />
+                      <Text style={{ color: '#fff', fontSize: 10, fontWeight: '800' }}>
+                        {item.rating}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={{ padding: 10 }}>
+                    <Text style={{ 
+                      fontSize: 13, 
+                      fontWeight: '700', 
+                      color: colors.text, 
+                      marginBottom: 6, 
+                      lineHeight: 17,
+                      height: 34
+                    }} numberOfLines={2}>
+                      {item.name}
+                    </Text>
+                    <View style={{ 
+                      flexDirection: 'row', 
+                      alignItems: 'center', 
+                      justifyContent: 'space-between',
+                      marginBottom: 6
+                    }}>
+                      <Text style={{ 
+                        fontSize: 15, 
+                        fontWeight: '900', 
+                        color: colors.primary 
+                      }}>
+                        {formatINR(item.price)}
+                      </Text>
+                      <View style={{ 
+                        flexDirection: 'row', 
+                        alignItems: 'center', 
+                        gap: 3
+                      }}>
+                        <Ionicons name="people" size={11} color={colors.subtext} />
+                        <Text style={{ 
+                          fontSize: 10, 
+                          color: colors.subtext, 
+                          fontWeight: '600' 
+                        }}>
+                          {item.reviewCount || 0}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              )}
+              ListEmptyComponent={
+                loading ? (
+                  <View style={{ flexDirection: 'row', gap: 12 }}>
+                    {[1, 2, 3].map((i) => (
+                      <HorizontalProductSkeleton key={i} />
+                    ))}
+                  </View>
+                ) : null
+              }
+            />
+          </View>
         </SlideInBottom>
 
         {/* Promotional Banner */}
